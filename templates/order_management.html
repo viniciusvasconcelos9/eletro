@@ -1,16 +1,19 @@
 {% extends "base.html" %}
 {% block title %}Order Management{% endblock %}
 {% block content %}
-<h2>Order Management</h2>
-<form action="/orders" method="POST">
-    <input type="text" name="client_name" placeholder="Client Name" required>
-    <input type="date" name="date" required>
-    <input type="number" name="value" placeholder="Value" min="0,01" step="any" required>
-    <textarea name="description" placeholder="Order Description" required></textarea>
-    <select name="order_type" required>
-        <option value="Entrada">Entrada</option>
-        <option value="Saída">Saída</option>
-    </select>
-    <button type="submit">Create Order</button>
-</form>
+<div id="container">
+    <h2>Order Management</h2>
+    <form action="/orders" method="POST">
+        <input type="text" name="client_name" placeholder="Client Name" required>
+        <input type="date" name="date" required>
+        <input type="number" name="value" placeholder="Value" min="0,01" step="any" required>
+        <textarea name="description" placeholder="Order Description" required></textarea>
+        <select name="order_type" required>
+            <option value="Entrada">Entrada</option>
+            <option value="Saída">Saída</option>
+        </select>
+        <button type="submit">Create Order</button>
+    </form>
+</div>
+
 {% endblock %}

@@ -18,7 +18,9 @@ def home():
 #ORDER MANAGEMENT
 @app.route('/order_management')
 def order_management():
-    return render_template('order_management.html')
+    clients = Clients.query.all()
+    tp_clients = type(clients)
+    return render_template('order_management.html', clients=clients)
 #------------------------------------------------------------
 
 #------------------------------------------------------------

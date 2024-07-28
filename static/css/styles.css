@@ -54,3 +54,11 @@ li {
     padding: 10px;
     border: 1px solid #ccc;
 }
+
+header {
+    background-color: aqua;
+}
+
+#container {
+    background-color: #8c3dc5;
+}
