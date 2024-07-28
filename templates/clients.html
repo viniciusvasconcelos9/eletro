@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Clients{% endblock %}
+{% block content %}
+<h2>Clients</h2>
+<form action="/clients" method="POST">
+    <input type="text" name="client_name" placeholder="Client Name" required>
+    <input type="text" name="address" placeholder="address" required>
+    <input type="tel" name="phone" placeholder="Phone" required>
+    <button type="submit">Create Client</button>
+</form>
+
+<ul>
+    <h2>Clients list</h2>
+    {% for client in clients %}
+    <li>
+        <form action="/clients/{{ client.id }}/update" method="POST">
+            <input type="text" name="client_name" value="{{ client.client_name }}" required>
+            <input type="text" name="address" value="{{ client.address }}" required>
+            <input type="text" name="phone" value="{{ client.phone }}" required>
+            <button type="submit">Update</button>
+        </form>
+        <form action="/clients/{{ client.id }}/delete" method="POST" style="display:inline;">
+            <button type="submit">Delete</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

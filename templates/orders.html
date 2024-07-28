@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Orders{% endblock %}
+{% block content %}
+<h2>Orders</h2>
+<ul>
+    {% for order in orders %}
+    <li>
+        <form action="/orders/{{ order.id }}/update" method="POST">
+            <input type="text" name="client_name" value="{{ order.client_name }}" required>
+            <input type="date" name="date" value="{{ order.date.strftime('%Y-%m-%d') }}" required>
+            <textarea name="description" required>{{ order.description }}</textarea>
+            <input type="number" name="value" min="0,01" step="any" value="{{ order.value }}" required>
+            <select name="status">
+                <option value="Aguardando" {% if order.status == 'Aguardando' %}selected{% endif %}>Aguardando</option>
+                <option value="Nao Iniciado" {% if order.status == 'Nao Iniciado' %}selected{% endif %}>Nao Iniciado</option>
+                <option value="Iniciado" {% if order.status == 'Iniciado' %}selected{% endif %}>Iniciado</option>
+                <option value="Concluido" {% if order.status == 'Concluido' %}selected{% endif %}>Concluido</option>
+                <option value="Pago" {% if order.status == 'Pago' %}selected{% endif %}>Pago</option>
+            </select>
+            <select name="order_type" required>
+                <option value="Entrada" {% if order.order_type == 'Entrada' %}selected{% endif %}>Entrada</option>
+                <option value="Saída" {% if order.order_type == 'Saída' %}selected{% endif %}>Saída</option>
+            </select>
+            <button type="submit">Update</button>
+        </form>
+        <form action="/orders/{{ order.id }}/delete" method="POST" style="display:inline;">
+            <button type="submit">Delete</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
