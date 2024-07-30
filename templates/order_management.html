@@ -4,7 +4,12 @@
 <div id="container">
     <h2>Order Management</h2>
     <form action="/orders" method="POST">
-        <input type="text" name="client_name" placeholder="Client Name" required>
+        <select name="client_id" required>
+            <option value="" disabled selected>Select Client</option>
+            {% for client in clients %}
+            <option value="{{ client.id }}">{{ client.client_name }}</option>
+            {% endfor %}
+        </select>
         <input type="date" name="date" required>
         <input type="number" name="value" placeholder="Value" min="0,01" step="any" required>
         <textarea name="description" placeholder="Order Description" required></textarea>

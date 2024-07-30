@@ -131,6 +131,13 @@ def finance():
 def expenses():
     return render_template('expenses.html')
 #------------------------------------------------------------
+ 
+#------------------------------------------------------------
+#MENU
+@app.route('/menu')
+def menu():
+    return render_template('menu.html')
+#------------------------------------------------------------
 
 if __name__ == '__main__':
     app.run(debug=True)
