@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
-from models import db, Order,Clients
+from models import db, Order,Clients, Menu
 from datetime import datetime
 
 app = Flask(__name__)
@@ -136,7 +136,47 @@ def expenses():
 #MENU
 @app.route('/menu')
 def menu():
-    return render_template('menu.html')
+    items = Menu.query.all()
+    return render_template('menu.html', menu=items)
+
+@app.route('/menu', methods=['POST'])
+def create_item():
+    data = request.form
+    new_item = Menu(
+        item_name=data['item_name'],
+        description=data['description'],
+        item_value=data['item_value'],
+        category=data['category']
+    )
+
+    db.session.add(new_item)
+    db.session.commit()
+    return redirect(url_for('menu'))
+
+@app.route('/menu/<int:menu_id>/update', methods=['POST'])
+def update_menu(menu_id):
+    item = Menu.query.get(menu_id)
+    if not item:
+        return jsonify({'message': 'Item not found'}), 404
+
+    data = request.form
+    item.item_name = data.get('item_name', menu.item_name)
+    item.description = data.get('description', menu.description)
+    item.item_value = data.get('item_value', menu.item_value)
+    item.category = data.get('category', menu.category)
+
+    db.session.commit()
+    return redirect(url_for('menu'))
+
+@app.route('/menu/<int:menu_id>/delete', methods=['POST'])
+def delete_item(menu_id):
+    item = Menu.query.get(menu_id)
+    if not item:
+        return jsonify({'message': 'Item not found'}), 404
+
+    db.session.delete(item)
+    db.session.commit()
+    return redirect(url_for('menu'))
 #------------------------------------------------------------
 
 if __name__ == '__main__':

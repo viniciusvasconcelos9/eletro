@@ -16,3 +16,11 @@ class Clients(db.Model):
     client_name = db.Column(db.String(100), nullable=False)
     address = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(100), nullable=False)
+
+class Menu(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    item_name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(100), nullable=False)
+    item_value = db.Column(db.String(100), nullable=False)
+    category = db.Column(db.String(100), nullable=False)
+    

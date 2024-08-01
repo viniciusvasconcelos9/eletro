@@ -3,5 +3,31 @@
 {% block content %}
 <div id="container">
     <h2>Menu</h2>
+    <form action="/menu" method="POST">
+        <input type="text" name="item_name" placeholder="Item Name" required>
+        <input type="text" name="description" placeholder="Description" required>
+        <input type="number" name="item_value" placeholder="Value" required>
+        <input type="text" name="category" placeholder="Category" required>
+        <button type="submit">Create Client</button>
+    </form>
+
+    <h2>Menu itens list</h2>
+    <ul>
+        
+        {% for itens in menu %}
+        <li>
+            <form action="/menu/{{ itens.id }}/update" method="POST">
+                <input type="text" name="item_name" value="{{ itens.item_name }}" required>
+                <input type="text" name="description" value="{{ itens.description }}" required>
+                <input type="number" name="item_value" value="{{ itens.item_value }}" required>
+                <input type="text" name="category" value="{{ itens.category }}" required>
+                <button type="submit">Update</button>
+            </form>
+            <form action="/menu/{{ itens.id }}/delete" method="POST" style="display:inline;">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}
