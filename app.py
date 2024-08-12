@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
-from models import db, Order,Clients, Menu
+from models import db, Order,Client, Menu, OrderItem
 from datetime import datetime
 
 app = Flask(__name__)
@@ -18,7 +18,7 @@ def home():
 #ORDER MANAGEMENT
 @app.route('/order_management')
 def order_management():
-    clients = Clients.query.all()
+    clients = Client.query.all()
     tp_clients = type(clients)
     return render_template('order_management.html', clients=clients)
 #------------------------------------------------------------
@@ -27,13 +27,13 @@ def order_management():
 #CLIENTS
 @app.route('/clients')
 def clients():
-    clients = Clients.query.all()
+    clients = Client.query.all()
     return render_template('clients.html', clients=clients)
 
 @app.route('/clients', methods=['POST'])
 def create_client():
     data = request.form
-    new_client = Clients(
+    new_client = Client(
         client_name=data['client_name'],
         address=data['address'],
         phone=data['phone']
@@ -45,7 +45,7 @@ def create_client():
 
 @app.route('/clients/<int:clients_id>/update', methods=['POST'])
 def update_client(clients_id):
-    client = Clients.query.get(clients_id)
+    client = Client.query.get(clients_id)
     if not client:
         return jsonify({'message': 'Client not found'}), 404
 
@@ -59,7 +59,7 @@ def update_client(clients_id):
 
 @app.route('/clients/<int:clients_id>/delete', methods=['POST'])
 def delete_client(clients_id):
-    client = Clients.query.get(clients_id)
+    client = Client.query.get(clients_id)
     if not client:
         return jsonify({'message': 'Client not found'}), 404
 
@@ -166,4 +166,4 @@ def delete_item(menu_id):
 #------------------------------------------------------------
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
