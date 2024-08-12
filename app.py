@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
-from models import db, Order,Client, Menu, OrderItem
+from models import db, Order, Client, Menu, OrderItem
 from datetime import datetime
 
 app = Flask(__name__)
@@ -19,8 +19,42 @@ def home():
 @app.route('/order_management')
 def order_management():
     clients = Client.query.all()
-    tp_clients = type(clients)
-    return render_template('order_management.html', clients=clients)
+    menu_items = Menu.query.all()
+    return render_template('order_management.html', clients=clients, menu_items=menu_items)
+
+@app.route('/order_management', methods=['POST'])
+def create_order():
+    data = request.form
+    client_id = data['client_id']
+    menu_item_ids = data.getlist('menu_item_ids')
+    quantities = data.getlist('quantities')
+    
+    new_order = Order(
+        client_id=client_id,
+        status='Pending',
+        value=0.0  # We'll calculate this later
+    )
+    
+    db.session.add(new_order)
+    db.session.flush()  # Get the new order ID before committing
+
+    total_value = 0.0
+    for menu_item_id, quantity in zip(menu_item_ids, quantities):
+        quantity = int(quantity)
+        menu_item = Menu.query.get(menu_item_id)
+        total_value += menu_item.item_value * quantity
+        
+        order_item = OrderItem(
+            order_id=new_order.id,
+            menu_item_id=menu_item_id,
+            quantity=quantity
+        )
+        db.session.add(order_item)
+    
+    new_order.value = total_value
+    db.session.commit()
+    
+    return redirect(url_for('orders'))
 #------------------------------------------------------------
 
 #------------------------------------------------------------
@@ -75,21 +109,6 @@ def orders():
     orders = Order.query.all()
     return render_template('orders.html', orders=orders)
 
-@app.route('/orders', methods=['POST'])
-def create_order():
-    data = request.form
-    new_order = Order(
-        client_name=data['client_name'],
-        date=datetime.strptime(data['date'], '%Y-%m-%d'),
-        description=data['description'],
-        value=data['value'],
-        status='Aguardando',
-        order_type=data['order_type']  # Set order type
-    )
-    db.session.add(new_order)
-    db.session.commit()
-    return redirect(url_for('orders'))
-
 @app.route('/orders/<int:order_id>/update', methods=['POST'])
 def update_order(order_id):
     order = Order.query.get(order_id)
@@ -98,12 +117,6 @@ def update_order(order_id):
 
     data = request.form
     order.status = data.get('status', order.status)
-    order.client_name = data.get('client_name', order.client_name)
-    order.date = datetime.strptime(data['date'], '%Y-%m-%d') if 'date' in data else order.date
-    order.value = data.get('value', order.value)
-    order.description = data.get('description', order.description)
-    order.order_type = data.get('order_type', order.order_type)  # Update order type
-
     db.session.commit()
     return redirect(url_for('orders'))
 
@@ -146,10 +159,10 @@ def update_menu(menu_id):
         return jsonify({'message': 'Item not found'}), 404
 
     data = request.form
-    item.item_name = data.get('item_name', menu.item_name)
-    item.description = data.get('description', menu.description)
-    item.item_value = data.get('item_value', menu.item_value)
-    item.category = data.get('category', menu.category)
+    item.item_name = data.get('item_name', item.item_name)
+    item.description = data.get('description', item.description)
+    item.item_value = data.get('item_value', item.item_value)
+    item.category = data.get('category', item.category)
 
     db.session.commit()
     return redirect(url_for('menu'))

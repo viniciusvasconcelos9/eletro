@@ -3,21 +3,23 @@
 {% block content %}
 <div id="container">
     <h2>Order Management</h2>
-    <form action="/orders" method="POST">
+    <form action="{{ url_for('create_order') }}" method="post">
+        <label for="client">Select Client:</label>
         <select name="client_id" required>
-            <option value="" disabled selected>Select Client</option>
             {% for client in clients %}
             <option value="{{ client.id }}">{{ client.client_name }}</option>
             {% endfor %}
         </select>
-        <input type="date" name="date" required>
-        <input type="number" name="value" placeholder="Value" min="0,01" step="any" required>
-        <textarea name="description" placeholder="Order Description" required></textarea>
-        <select name="order_type" required>
-            <option value="Entrada">Entrada</option>
-            <option value="Saída">Saída</option>
-        </select>
-        <button type="submit">Create Order</button>
+
+        {% for item in menu_items %}
+        <div>
+            <input type="checkbox" name="menu_item_ids" value="{{ item.id }}"> 
+            {{ item.item_name }} - ${{ item.item_value }}
+            <input type="number" name="quantities" value="1" min="1">
+        </div>
+        {% endfor %}
+
+        <button type="submit">Place Order</button>
     </form>
 </div>
 

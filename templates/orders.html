@@ -1,35 +1,111 @@
 {% extends "base.html" %}
 {% block title %}Orders{% endblock %}
 {% block content %}
-<div id="container">
-    <h2>Orders</h2>
-    <ul>
-        {% for order in orders %}
-        <li>
-            <form action="/orders/{{ order.id }}/update" method="POST">
-                <input type="text" name="client_name" value="{{ order.client_name }}" required>
-                <input type="date" name="date" value="{{ order.date.strftime('%Y-%m-%d') }}" required>
-                <textarea name="description" required>{{ order.description }}</textarea>
-                <input type="number" name="value" min="0,01" step="any" value="{{ order.value }}" required>
-                <select name="status">
-                    <option value="Aguardando" {% if order.status == 'Aguardando' %}selected{% endif %}>Aguardando</option>
-                    <option value="Nao Iniciado" {% if order.status == 'Nao Iniciado' %}selected{% endif %}>Nao Iniciado</option>
-                    <option value="Iniciado" {% if order.status == 'Iniciado' %}selected{% endif %}>Iniciado</option>
-                    <option value="Concluido" {% if order.status == 'Concluido' %}selected{% endif %}>Concluido</option>
-                    <option value="Pago" {% if order.status == 'Pago' %}selected{% endif %}>Pago</option>
-                </select>
-                <select name="order_type" required>
-                    <option value="Entrada" {% if order.order_type == 'Entrada' %}selected{% endif %}>Entrada</option>
-                    <option value="Saída" {% if order.order_type == 'Saída' %}selected{% endif %}>Saída</option>
-                </select>
-                <button type="submit">Update</button>
-            </form>
-            <form action="/orders/{{ order.id }}/delete" method="POST" style="display:inline;">
-                <button type="submit">Delete</button>
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
-</div>
+<h1>Orders</h1>
+    <div class="board">
+        <!-- Pending Column -->
+        <div class="column">
+            <h2>Pending</h2>
+            {% for order in orders if order.status == 'Pending' %}
+            <div class="order-card">
+                <p><strong>Order ID:</strong> {{ order.id }}</p>
+                <p><strong>Client:</strong> {{ order.client.client_name }}</p>
+                <p><strong>Date:</strong> {{ order.date.strftime('%Y-%m-%d') }}</p>
+                <p><strong>Total Value:</strong> ${{ order.value }}</p>
+                <form action="{{ url_for('update_order', order_id=order.id) }}" method="post">
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </form>
+                <div class="order-actions">
+                    <form action="{{ url_for('delete_order', order_id=order.id) }}" method="post">
+                        <input type="submit" value="Delete">
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Processing Column -->
+        <div class="column">
+            <h2>Processing</h2>
+            {% for order in orders if order.status == 'Processing' %}
+            <div class="order-card">
+                <p><strong>Order ID:</strong> {{ order.id }}</p>
+                <p><strong>Client:</strong> {{ order.client.client_name }}</p>
+                <p><strong>Date:</strong> {{ order.date.strftime('%Y-%m-%d') }}</p>
+                <p><strong>Total Value:</strong> ${{ order.value }}</p>
+                <form action="{{ url_for('update_order', order_id=order.id) }}" method="post">
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="Pending">Pending</option>
+                        <option value="Processing" {% if order.status == 'Processing' %}selected{% endif %}>Processing</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </form>
+                <div class="order-actions">
+                    <form action="{{ url_for('delete_order', order_id=order.id) }}" method="post">
+                        <input type="submit" value="Delete">
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Completed Column -->
+        <div class="column">
+            <h2>Completed</h2>
+            {% for order in orders if order.status == 'Completed' %}
+            <div class="order-card">
+                <p><strong>Order ID:</strong> {{ order.id }}</p>
+                <p><strong>Client:</strong> {{ order.client.client_name }}</p>
+                <p><strong>Date:</strong> {{ order.date.strftime('%Y-%m-%d') }}</p>
+                <p><strong>Total Value:</strong> ${{ order.value }}</p>
+                <form action="{{ url_for('update_order', order_id=order.id) }}" method="post">
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Completed" {% if order.status == 'Completed' %}selected{% endif %}>Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </form>
+                <div class="order-actions">
+                    <form action="{{ url_for('delete_order', order_id=order.id) }}" method="post">
+                        <input type="submit" value="Delete">
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Cancelled Column -->
+        <div class="column">
+            <h2>Cancelled</h2>
+            {% for order in orders if order.status == 'Cancelled' %}
+            <div class="order-card">
+                <p><strong>Order ID:</strong> {{ order.id }}</p>
+                <p><strong>Client:</strong> {{ order.client.client_name }}</p>
+                <p><strong>Date:</strong> {{ order.date.strftime('%Y-%m-%d') }}</p>
+                <p><strong>Total Value:</strong> ${{ order.value }}</p>
+                <form action="{{ url_for('update_order', order_id=order.id) }}" method="post">
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </form>
+                <div class="order-actions">
+                    <form action="{{ url_for('delete_order', order_id=order.id) }}" method="post">
+                        <input type="submit" value="Delete">
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 
 {% endblock %}
