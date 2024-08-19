@@ -26,17 +26,17 @@ def order_management():
 def create_order():
     data = request.form
     client_id = data['client_id']
-    menu_item_ids = data.getlist('menu_item_ids')
-    quantities = data.getlist('quantities')
+    menu_item_ids = data.getlist('menu_item_ids[]')  # Recebe como uma lista
+    quantities = data.getlist('quantities[]')  # Recebe como uma lista
     
     new_order = Order(
         client_id=client_id,
         status='Pending',
-        value=0.0  # We'll calculate this later
+        value=0.0  # Vamos calcular isso mais tarde
     )
     
     db.session.add(new_order)
-    db.session.flush()  # Get the new order ID before committing
+    db.session.flush()  # Obter o ID do novo pedido antes de confirmar
 
     total_value = 0.0
     for menu_item_id, quantity in zip(menu_item_ids, quantities):
@@ -54,7 +54,8 @@ def create_order():
     new_order.value = total_value
     db.session.commit()
     
-    return redirect(url_for('orders'))
+    return jsonify({'status': 'success'})
+
 #------------------------------------------------------------
 
 #------------------------------------------------------------

@@ -4,25 +4,89 @@
 <h1>Order Management</h1>
 <div class="board">
     <div class="column">
-        <form action="{{ url_for('create_order') }}" method="post">
-            <label for="client">Select Client:</label>
-            <select name="client_id" required>
-                {% for client in clients %}
-                <option value="{{ client.id }}">{{ client.client_name }}</option>
-                {% endfor %}
-            </select>
+        <label for="client">Select Client:</label>
+        <select id="client" name="client_id" required>
+            {% for client in clients %}
+            <option value="{{ client.id }}">{{ client.client_name }}</option>
+            {% endfor %}
+        </select>
 
+        <div id="menu-items" class="menu-items">
             {% for item in menu_items %}
-            <div>
-                <input type="checkbox" name="menu_item_ids" value="{{ item.id }}"> 
-                {{ item.item_name }} - ${{ item.item_value }}
-                <input type="number" name="quantities" value="1" min="1">
+            <div class="card" data-id="{{ item.id }}" data-name="{{ item.item_name }}" data-value="{{ item.item_value }}">
+                <h3>{{ item.item_name }}</h3>
+                <p>{{ item.description }}</p>
+                <p>${{ item.item_value }}</p>
             </div>
             {% endfor %}
+        </div>
+    </div>
 
-            <button type="submit">Place Order</button>
-        </form>
+    <div class="column">
+        <h2>Your Order</h2>
+        <div id="order-summary"></div>
+        <button id="place-order" type="button">Place Order</button>
     </div>
 </div>
+
+<script>
+    let order = [];
+
+    document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', () => {
+            const id = card.dataset.id;
+            const name = card.dataset.name;
+            const value = parseFloat(card.dataset.value);
+
+            let item = order.find(i => i.id === id);
+            if (item) {
+                item.quantity++;
+            } else {
+                order.push({ id, name, value, quantity: 1 });
+            }
+
+            renderOrderSummary();
+        });
+    });
+
+    function renderOrderSummary() {
+        const orderSummary = document.getElementById('order-summary');
+        orderSummary.innerHTML = '';
+
+        order.forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.textContent = `${item.name} x ${item.quantity} - $${(item.value * item.quantity).toFixed(2)}`;
+            orderSummary.appendChild(itemElement);
+        });
+
+        const total = order.reduce((sum, item) => sum + item.value * item.quantity, 0);
+        const totalElement = document.createElement('div');
+        totalElement.textContent = `Total: $${total.toFixed(2)}`;
+        orderSummary.appendChild(totalElement);
+    }
+
+    document.getElementById('place-order').addEventListener('click', () => {
+        const client_id = document.getElementById('client').value;
+        const menu_item_ids = order.map(item => item.id);
+        const quantities = order.map(item => item.quantity);
+
+        fetch("{{ url_for('create_order') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                client_id,
+                menu_item_ids,
+                quantities
+            })
+        }).then(response => response.json()).then(data => {
+            if (data.status === 'success') {
+                window.location.href = "{{ url_for('orders') }}";
+            }
+        });
+
+    });
+</script>
 
 {% endblock %}
