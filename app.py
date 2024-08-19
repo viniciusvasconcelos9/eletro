@@ -25,10 +25,22 @@ def order_management():
 @app.route('/order_management', methods=['POST'])
 def create_order():
     data = request.form
-    client_id = data['client_id']
-    menu_item_ids = data.getlist('menu_item_ids[]')  # Recebe como uma lista
-    quantities = data.getlist('quantities[]')  # Recebe como uma lista
+    print("Form Data:", data)
+
+    client_id = data.get('client_id')
+    print("Client ID:", client_id)
+
+    # Parse JSON arrays
+    import json
+    menu_item_ids = json.loads(data.get('menu_item_ids', '[]'))
+    quantities = json.loads(data.get('quantities', '[]'))
     
+    print("Menu Item IDs:", menu_item_ids)
+    print("Quantities:", quantities)
+
+    if not menu_item_ids or not quantities:
+        return jsonify({'status': 'error', 'message': 'menu_item_ids or quantities are empty'}), 400
+
     new_order = Order(
         client_id=client_id,
         status='Pending',
@@ -42,6 +54,8 @@ def create_order():
     for menu_item_id, quantity in zip(menu_item_ids, quantities):
         quantity = int(quantity)
         menu_item = Menu.query.get(menu_item_id)
+        if not menu_item:
+            return jsonify({'status': 'error', 'message': f'Menu item with ID {menu_item_id} not found'}), 404
         total_value += menu_item.item_value * quantity
         
         order_item = OrderItem(
@@ -55,6 +69,7 @@ def create_order():
     db.session.commit()
     
     return jsonify({'status': 'success'})
+
 
 #------------------------------------------------------------
 

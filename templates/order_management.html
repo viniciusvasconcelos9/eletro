@@ -2,32 +2,38 @@
 {% block title %}Order Management{% endblock %}
 {% block content %}
 <h1>Order Management</h1>
-<div class="board">
-    <div class="column">
-        <label for="client">Select Client:</label>
-        <select id="client" name="client_id" required>
-            {% for client in clients %}
-            <option value="{{ client.id }}">{{ client.client_name }}</option>
-            {% endfor %}
-        </select>
+<form id="order-form" action="{{ url_for('create_order') }}" method="post">
+    <div class="board">
+        <div class="column">
+            <label for="client">Select Client:</label>
+            <select id="client" name="client_id" required>
+                {% for client in clients %}
+                <option value="{{ client.id }}">{{ client.client_name }}</option>
+                {% endfor %}
+            </select>
 
-        <div id="menu-items" class="menu-items">
-            {% for item in menu_items %}
-            <div class="card" data-id="{{ item.id }}" data-name="{{ item.item_name }}" data-value="{{ item.item_value }}">
-                <h3>{{ item.item_name }}</h3>
-                <p>{{ item.description }}</p>
-                <p>${{ item.item_value }}</p>
+            <div id="menu-items" class="menu-items">
+                {% for item in menu_items %}
+                <div class="card" data-id="{{ item.id }}" data-name="{{ item.item_name }}" data-value="{{ item.item_value }}">
+                    <h3>{{ item.item_name }}</h3>
+                    <p>{{ item.description }}</p>
+                    <p>${{ item.item_value }}</p>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+        </div>
+
+        <div class="column">
+            <h2>Your Order</h2>
+            <div id="order-summary"></div>
+            <button id="place-order" type="button">Place Order</button>
         </div>
     </div>
 
-    <div class="column">
-        <h2>Your Order</h2>
-        <div id="order-summary"></div>
-        <button id="place-order" type="button">Place Order</button>
-    </div>
-</div>
+    <!-- Hidden inputs to store the menu item ids and quantities -->
+    <input type="hidden" id="menu-item-ids" name="menu_item_ids">
+    <input type="hidden" id="quantities" name="quantities">
+</form>
 
 <script>
     let order = [];
@@ -70,6 +76,11 @@
         const menu_item_ids = order.map(item => item.id);
         const quantities = order.map(item => item.quantity);
 
+        // Set hidden input values as JSON strings
+        document.getElementById('menu-item-ids').value = JSON.stringify(menu_item_ids);
+        document.getElementById('quantities').value = JSON.stringify(quantities);
+
+        // Submit the form via fetch and handle redirection
         fetch("{{ url_for('create_order') }}", {
             method: 'POST',
             headers: {
@@ -77,15 +88,22 @@
             },
             body: new URLSearchParams({
                 client_id,
-                menu_item_ids,
-                quantities
+                menu_item_ids: document.getElementById('menu-item-ids').value,
+                quantities: document.getElementById('quantities').value
             })
-        }).then(response => response.json()).then(data => {
+        })
+        .then(response => response.json())
+        .then(data => {
             if (data.status === 'success') {
-                window.location.href = "{{ url_for('orders') }}";
+                window.location.href = "{{ url_for('orders') }}"; // Redirect to orders page
+            } else {
+                alert('Failed to place order.');
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while placing the order.');
         });
-
     });
 </script>
 
